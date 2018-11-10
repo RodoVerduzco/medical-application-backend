@@ -6,7 +6,7 @@ CLIENT = MongoClient(config.DB_URI,
                      socketTimeoutMS=None,
                      socketKeepAlive=True)
 DATABASE = CLIENT.get_default_database()
-collection = DATABASE.doctors
+collection = DATABASE.doctor
 
 def login_doctor(user, password):
     """login_patient
@@ -18,8 +18,14 @@ def login_doctor(user, password):
     Returns:
         dict: information about the patient
     """
+    response = {"Login Failed": "Incorrect Data"}
 
-    data = collection.find_one({"email": user}, {'_id': 0})
+    print(user)
+    print(password)
 
+    data = collection.find_one({'email': user}, {'_id': 0})
 
-    return data
+    if data.get('password') == password:
+        response = {"Successful Login": data}
+
+    return response

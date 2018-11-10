@@ -1,14 +1,14 @@
 """ Views form flask framework """
 from flask import Blueprint
-from users.api import UsersAPI
+from doctors.api import DoctorsAPI
 
-USERS_APP = Blueprint('users_app', __name__)
-USERS_VIEW = UsersAPI.as_view('users_api')
+DOCTORS_APP = Blueprint('doctors_app', __name__)
+DOCTORS_VIEW = DoctorsAPI.as_view('doctors_api')
 
-USERS_APP.add_url_rule('/users/',
-                        view_func=USERS_VIEW,
-                        methods=['GET', ])
+DOCTORS_APP.add_url_rule('/doctors/',
+                         view_func=DOCTORS_VIEW,
+                         methods=['GET', ])
 
-USERS_APP.add_url_rule('/users/search_users',
-                        view_func=USERS_VIEW,
-                        methods=['POST', ])
+DOCTORS_APP.add_url_rule('/doctors/search_doctors',
+                         view_func=DOCTORS_VIEW,
+                         methods=['POST', ])

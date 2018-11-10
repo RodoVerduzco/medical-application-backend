@@ -2,15 +2,12 @@
 import logging
 from flask.views import MethodView
 from flask import jsonify, request
-import users.handle_users as USERS
+from doctors.handle_doctors import login_doctor
+import json
 
-class DoctorAPI(MethodView):
+class DoctorsAPI(MethodView):
     """ Main API Body """
     logger = logging.getLogger(__name__)
-
-    #def __init__(self):
-    #    if (request.method != 'GET') and not request.json:
-    #        abort(400)
 
     @staticmethod
     def get():
@@ -31,15 +28,17 @@ class DoctorAPI(MethodView):
             json: Response from the server with the news
                   result message
         """
-        response = "Null"
-
 
         data = request.json
-        self.logger.info("########## Events API Called")
+        self.logger.info("########## Doctors API Called")
         self.logger.info(data)
 
-        testing_param = data.get('type')
+        interaction = data.get('action')
 
-        return jsonify({
-            'users': response
-        }), 201
+        if not interaction:
+            response = "Incorrect Information"
+        else:
+            if interaction == "LOGIN":
+                response = login_doctor(data.get('user'), data.get('password'))
+
+        return jsonify(response), 201
