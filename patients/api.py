@@ -3,7 +3,7 @@ import logging
 from flask.views import MethodView
 from flask import jsonify, request
 from patients.handle_patients import register_patient, login_patient, add_prescription, get_active,\
-                                    get_inactive
+                                    get_inactive, update_status, get_prescriptions_patient
 
 class PatientsAPI(MethodView):
     """ Main API Body """
@@ -67,7 +67,7 @@ class PatientsAPI(MethodView):
 
         interaction = data.get("action")
 
-        if not interaction:
+        if not interaction or not data:
             response = "Incorrect Information"
         else:
             # Register a new patient
@@ -97,12 +97,31 @@ class PatientsAPI(MethodView):
                     response = add_prescription(date, patient_name, doctor_name, sickness,
                                                 diagnose, drug, p_card, interval, duration)
 
+            # Get the active/inactive
             if interaction == "GET":
                 if data.get("user_type") == "active":
-                    get_active()
+                    response = get_active()
                 elif data.get("user_type") == "inactive":
-                    get_inactive()
+                    response = get_inactive()
                 else:
                     response = "Invalid Option"
+
+            # Update status
+            if interaction == "UPDATE_STATUS":
+                ss_num = data.get('ss_num')
+                status = data.get('status')
+
+                if ss_num and status:
+                    response = update_status(ss_num, status)
+                else:
+                    response = {"Patient": "Missing Information"}
+
+            if interaction == "GET_PRESCRIPTION":
+                ss_num = data.get('ss_num')
+
+                if ss_num:
+                    response = get_prescriptions_patient(ss_num)
+                else:
+                    response = {"Patient": "Missing Information"}
 
         return jsonify(response), 201

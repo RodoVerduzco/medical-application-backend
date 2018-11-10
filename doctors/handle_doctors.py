@@ -18,14 +18,17 @@ def login_doctor(user, password):
     Returns:
         dict: information about the patient
     """
-    response = {"Login Failed": "Incorrect Data"}
-
-    print(user)
-    print(password)
+    response = {"login": "false"}
 
     data = collection.find_one({'email': user}, {'_id': 0})
 
-    if data.get('password') == password:
-        response = {"Successful Login": data}
+    if not data:
+        response = {"login": "false"}
+    else:
+        if data.get('password') == password:
+            response = {
+                "login": "true",
+                "data": data
+            }
 
     return response

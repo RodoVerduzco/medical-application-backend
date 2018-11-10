@@ -36,7 +36,7 @@ class DoctorsAPI(MethodView):
         interaction = data.get('action')
 
         if not interaction:
-            response = "Incorrect Information"
+            response = {"login": "false"}
         else:
             if interaction == "LOGIN":
                 response = login_doctor(data.get('user'), data.get('password'))
