@@ -48,9 +48,8 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
     if not app.testing:
         logging.basicConfig(level=logging.INFO)
 
-    #from users.views import USERS_APP
+    from patients.views import PATIENTS_APP
 
-    #app.register_blueprint(EVENTS_APP, url_prefix='/api/v1')
-
+    app.register_blueprint(PATIENTS_APP, url_prefix='/api/v1')
 
     return app
