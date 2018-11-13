@@ -3,7 +3,9 @@ import logging
 from flask.views import MethodView
 from flask import jsonify, request
 from patients.handle_patients import register_patient, login_patient, add_prescription, get_active,\
-                                    get_inactive, update_status, get_prescriptions_patient
+                                    get_inactive, update_status, get_prescriptions_patient, get_patient, \
+                                    check_previous_prescriptions, terminate_treatment, find_prescription_patient, \
+                                    modify_prescription
 
 class PatientsAPI(MethodView):
     """ Main API Body """
@@ -38,7 +40,7 @@ class PatientsAPI(MethodView):
             Args:
                 prescription_info(dict): Information of the prescription and patient
         """
-        date = prescription_info.get("date")
+        ssn = prescription_info.get("ssn")
         patient_name = prescription_info.get("patient_name")
         doctor_name = prescription_info.get("doctor_name")
         sickness = prescription_info.get("sickness")
@@ -48,7 +50,7 @@ class PatientsAPI(MethodView):
         interval = prescription_info.get("interval")
         duration = prescription_info.get("duration")
 
-        return date, patient_name, doctor_name, sickness, diagnose, drug, p_card, interval, duration
+        return ssn, patient_name, doctor_name, sickness, diagnose, drug, p_card, interval, duration
 
 
     def post(self):
@@ -81,20 +83,47 @@ class PatientsAPI(MethodView):
 
             # Login the Patient
             if interaction == "LOGIN":
-                response = login_patient(data.get("ss_num"))
+                ssn = data.get('user')
+                if ssn :
+                    response = {"Patient": login_patient(ssn)}
+                else:
+                    response = {"Patient": "Missing data"}
+
+            if interaction == "TERMINATE":
+                ssn = data.get("ssn")
+                if ssn:
+                    response = {"Patient": terminate_treatment(ssn)}
+                else:
+                    response = {"Patient":"Missing Information"}
+
+            if interaction == "MODIFY_PRESCRIPTION":
+                ssn = data.get("ssn")
+                date = data.get("date")
+                sickness = data.get("sickness")
+                diagnose = data.get("diagnose")
+                drug = data.get("drug")
+                interval = data.get("interval")
+                duration = data.get("duration")
+
+                if not ssn or not sickness or not diagnose\
+                   or not drug  or not interval or not duration:
+                    response = "Missing Information"
+                else:
+                    response = {"Patient": modify_prescription(ssn,  sickness,
+                                                diagnose, drug,  interval, duration,date)}
 
             # Add a medical prescription
             if interaction == "ADD_PRESCRIPTION":
                 # Get the prescription data
-                date, patient_name, doctor_name, sickness \
+                ssn, patient_name, doctor_name, sickness \
                 , diagnose, drug, p_card, interval, duration = self.get_prescription_data(data)
 
                 # Add the prescription
-                if not date or not patient_name or not doctor_name or not sickness or not diagnose\
+                if not ssn or not patient_name or not doctor_name or not sickness or not diagnose\
                    or not drug or not p_card or not interval or not duration:
                     response = "Missing Information"
                 else:
-                    response = add_prescription(date, patient_name, doctor_name, sickness,
+                    response = add_prescription(ssn, patient_name, doctor_name, sickness,
                                                 diagnose, drug, p_card, interval, duration)
 
             # Get the active/inactive
@@ -105,6 +134,13 @@ class PatientsAPI(MethodView):
                     response = get_inactive()
                 else:
                     response = "Invalid Option"
+            
+            if interaction == "TERMINATE_TREATMENT":
+                ss_num = data.get("ss_num")
+                if ss_num is None:
+                    response = {"Patient":"Missing information"}
+                else:
+                    response = jsonify(terminate_treatment(ss_num))
 
             # Update status
             if interaction == "UPDATE_STATUS":
@@ -115,12 +151,26 @@ class PatientsAPI(MethodView):
                     response = update_status(ss_num, status)
                 else:
                     response = {"Patient": "Missing Information"}
+            
+            if interaction == "SELECT_PRESCRIPTION":
+                ss_num = data.get('ss_num')
+                date = data.get("date")
+                if ss_num and date:
+                    response = find_prescription_patient(ss_num, date)
+                else:
+                    response = {"Patient":"Missing Information"}
 
             if interaction == "GET_PRESCRIPTION":
                 ss_num = data.get('ss_num')
-
+                #date = data.get("date")
                 if ss_num:
                     response = get_prescriptions_patient(ss_num)
+                else:
+                    response = {"Patient": "Missing Information"}
+            if interaction == "GET_PATIENT":
+                ss_num = data.get('ss_num')
+                if ss_num:
+                    response = get_patient(ss_num)
                 else:
                     response = {"Patient": "Missing Information"}
 

@@ -2,7 +2,7 @@
 import logging
 from flask.views import MethodView
 from flask import jsonify, request
-from doctors.handle_doctors import login_doctor
+from doctors.handle_doctors import login_doctor, info_doctor
 import json
 
 class DoctorsAPI(MethodView):
@@ -40,5 +40,7 @@ class DoctorsAPI(MethodView):
         else:
             if interaction == "LOGIN":
                 response = login_doctor(data.get('user'), data.get('password'))
+            elif interaction == "INFO_DOC":
+                response = info_doctor()
 
         return jsonify(response), 201

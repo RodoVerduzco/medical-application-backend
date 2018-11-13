@@ -32,3 +32,23 @@ def login_doctor(user, password):
             }
 
     return response
+
+def info_doctor():
+    """info_doctor
+    Calls the DBHelper to get the doctor's info
+
+    Returns:
+        dict: information about the doctor
+    """
+    response = {"login": "false"}
+
+    data = collection.find_one({'email': "esteban_doctor.com"}, {'_id': 0})
+
+    if not data:
+        response = {"data": "not_found"}
+    else:
+        response = {
+            "data": data
+        }
+
+    return response
